@@ -1,6 +1,7 @@
 package Projekt;
 
 
+import java.util.Locale;
 import java.util.Scanner;
 
 public class Dialog {
@@ -38,6 +39,11 @@ public class Dialog {
     public static String dialogString(String text){
         System.out.println(text);
         return console.nextLine();
+    }
+
+    public static String dialogToLower(String text){
+        System.out.println(text);
+        return console.nextLine().toLowerCase();
     }
 
     public static float dialogFloat(String text){

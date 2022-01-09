@@ -32,7 +32,7 @@ public class guest_information {
             statement.setString(5, birthdate);
             statement.executeUpdate();
             String fullName = first_name + " " + last_name;
-            System.out.println(fullName + " registered successfully! ");
+            System.out.println("\n" + fullName + " registered successfully! ");
         } catch (Exception e) {
             e.printStackTrace();
         }

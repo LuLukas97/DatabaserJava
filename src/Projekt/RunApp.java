@@ -15,6 +15,7 @@ public class RunApp {
     guest_information guestInfo = new guest_information();
     Destinations destination = new Destinations();
     public boolean menuCheck = true;
+    Rooms rooms = new Rooms();
 
 
     public RunApp(Connection connect, PreparedStatement statement, ResultSet resultSet) throws SQLException {
@@ -43,11 +44,13 @@ public class RunApp {
 
                 case 1:
                     guestInfo.registerUser(connect, statement, resultSet);
-                    break;
+                    mainMenu( connect,  statement, resultSet);
                 case 2:
-                    destination.bookRoom(connect, statement, resultSet);
+                    destination.hotelOptions(connect, statement, resultSet);
                     break;
-
+                case 3:
+                    rooms.showAllAvailableRooms(connect, statement, resultSet);
+                    mainMenu( connect,  statement, resultSet);
 
         }
         if (!menuCheck){
