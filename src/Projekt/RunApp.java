@@ -31,11 +31,12 @@ public class RunApp {
 
     public void mainMenu(Connection connect, PreparedStatement statement, ResultSet resultSet) throws SQLException {
         System.out.println("""
-                 | 1 | Register a new customer and company
+                 
+                 | 1 | Register a new customer
                  | 2 | Book a hotel room
                  | 3 | Search for empty rooms
                  | 4 | Search for all rooms
-                 | 5 | Room menu
+                 | 5 | Edit bookning (TO DO)
                  | 6 | Quit
                 """);
         mainMenuOption = scanner.nextInt();
@@ -43,14 +44,18 @@ public class RunApp {
             switch (mainMenuOption) {
 
                 case 1:
-                    guestInfo.registerUser(connect, statement, resultSet);
+                    guestInfo.customerMenu(connect, statement, resultSet);
                     mainMenu( connect,  statement, resultSet);
                 case 2:
                     destination.hotelOptions(connect, statement, resultSet);
-                    break;
+                    mainMenu(connect, statement, resultSet);
                 case 3:
                     rooms.showAllAvailableRooms(connect, statement, resultSet);
                     mainMenu( connect,  statement, resultSet);
+
+                case 4:
+                    rooms.showAllRooms(connect, statement, resultSet);
+                    mainMenu(connect, statement, resultSet);
 
         }
         if (!menuCheck){
