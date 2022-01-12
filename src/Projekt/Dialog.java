@@ -46,9 +46,4 @@ public class Dialog {
         return console.nextLine().toLowerCase();
     }
 
-    public static float dialogFloat(String text){
-        System.out.println(text);
-        return Float.parseFloat(console.nextLine());
-    }
-
 }

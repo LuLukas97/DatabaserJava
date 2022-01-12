@@ -16,10 +16,12 @@ public class RunApp {
     Destinations destination = new Destinations();
     public boolean menuCheck = true;
     Rooms rooms = new Rooms();
+    String username;
+    String password;
 
 
     public RunApp(Connection connect, PreparedStatement statement, ResultSet resultSet) throws SQLException {
-        mainMenu(connect, statement, resultSet);
+        login(connect, statement, resultSet);
     }
 
     // Skapa bokningar med tilläggstjänster (extrasäng, halvpension, helpension).
@@ -29,14 +31,28 @@ public class RunApp {
     // Söktraffärar ska kunna ordnas på pris (lågt till högt)
     // Söktraffärar ska kunna ordnas på omdöme (högt till lågt)
 
+    public void login(Connection connect, PreparedStatement statement, ResultSet resultSet) throws SQLException {
+        username = Dialog.dialogString("Enter username: ");
+        password = Dialog.dialogString("Enter password: ");
+
+        if (username.equalsIgnoreCase("admin") && password.equalsIgnoreCase("admin")){
+            mainMenu(connect, statement, resultSet);
+        } else {
+            System.out.println("Wrong username or password, try again.");
+            login(connect, statement, resultSet);
+        }
+
+
+    }
+
     public void mainMenu(Connection connect, PreparedStatement statement, ResultSet resultSet) throws SQLException {
         System.out.println("""
                  
                  | 1 | Register a new customer
-                 | 2 | Book a hotel room
+                 | 2 | Search for a hotel
                  | 3 | Search for empty rooms
                  | 4 | Search for all rooms
-                 | 5 | Edit bookning (TO DO)
+                 | 5 | Edit customer information
                  | 6 | Quit
                 """);
         mainMenuOption = scanner.nextInt();
@@ -44,7 +60,7 @@ public class RunApp {
             switch (mainMenuOption) {
 
                 case 1:
-                    guestInfo.customerMenu(connect, statement, resultSet);
+                    guestInfo.registerUser(connect, statement, resultSet);
                     mainMenu( connect,  statement, resultSet);
                 case 2:
                     destination.hotelOptions(connect, statement, resultSet);
@@ -57,30 +73,14 @@ public class RunApp {
                     rooms.showAllRooms(connect, statement, resultSet);
                     mainMenu(connect, statement, resultSet);
 
-        }
-        if (!menuCheck){
-            System.out.println("exiting..");
-            System.exit(1);
+                case 5:
+                    guestInfo.editCustomerInfo(connect, statement, resultSet);
+                    mainMenu(connect, statement, resultSet);
+                case 6:
+                    System.out.println("Exiting..");
+                    System.exit(1);
+
         }
     }
-
-    public void registerCustomer() {
-        System.out.println("How many people do you want to book a room for?");
-        int amountOfCustomers = scanner.nextInt();
-        for (int i = 0; i < amountOfCustomers; i++) {
-            System.out.println("Enter your name: ");
-            customerName = scanner.next();
-            customers.add(customerName);
-        }
-        for (var customer : customers) {
-            System.out.println(customer);
-        }
-
-        System.out.println("Who will pay for the booking?");
-        int payingCustomer = scanner.nextInt();
-        System.out.println(payingCustomer);
-
-    }
-
 
 }

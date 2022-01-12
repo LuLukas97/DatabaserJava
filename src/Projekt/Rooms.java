@@ -1,6 +1,5 @@
 package Projekt;
 
-import javax.xml.transform.Result;
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -8,7 +7,6 @@ import java.sql.SQLException;
 
 public class Rooms {
     guest_information guestInfo = new guest_information();
-    int restaurantExists;
     int roomSelected;
     String checkOutDate;
     String checkInDate;
@@ -26,7 +24,6 @@ public class Rooms {
 
     public void showAllAvailableRooms(Connection connect, PreparedStatement statement, ResultSet resultSet) {
         try {
-
             statement = connect.prepareStatement("SELECT * FROM availableRooms");
             ResultSet resultAvailableRoomsAll = statement.executeQuery();
             statement.executeQuery();
@@ -37,7 +34,9 @@ public class Rooms {
                                 " - City : " + resultAvailableRoomsAll.getString("City") + "\n "
                                 + " - Hotel name : " + resultAvailableRoomsAll.getString("Hotel name") + " \n "
                                 + " - Rating : " + resultAvailableRoomsAll.getString("Rating") + " \n "
-                                + " - Room number : " + resultAvailableRoomsAll.getString("Room Number") + " \n ";
+                                + " - Room number : " + resultAvailableRoomsAll.getString("Room Number") + " \n "
+                                + " - Room type : " + resultAvailableRoomsAll.getString("Room type") + " \n"
+                                + " - Price per night : " + resultAvailableRoomsAll.getString("Price per night") + " \n";
 
                 System.out.println(availableRoomsAll);
             }
@@ -53,7 +52,6 @@ public class Rooms {
         checkInDate = Dialog.dialogString("Enter your desired check in date: (YYYY-MM-DD)");
         checkOutDate = Dialog.dialogString("Enter your desired check out date: (YYYY-MM-DD)");
         try {
-            //statement = connect.prepareStatement("SELECT * FROM booked_rooms WHERE NOT (checkin_date BETWEEN ? AND ?) AND NOT (checkout_date BETWEEN ? AND ?) AND HotelID = ? GROUP BY room_number");
             statement = connect.prepareStatement("SELECT * FROM booked_rooms WHERE room_number NOT IN (SELECT room_number FROM booked_rooms WHERE checkin_date BETWEEN ? AND ?) AND NOT (checkout_date BETWEEN ? AND ?) AND HotelID = ? OR checkin_date IS NULL AND checkout_date IS NULL AND HotelID = ? GROUP BY room_number");
             ResultSet checkForRoomsDates = statement.executeQuery();
             statement.setString(1, checkInDate);
@@ -75,15 +73,10 @@ public class Rooms {
                                 "\nMaximum guests: " + checkForRoomsDates.getString("Maximum guests") +
                                 "\nPrice per night: " + checkForRoomsDates.getString("Price per night") + "$";
 
-                //System.out.println(notBookedRoom + " in loop");
                 System.out.println(showFreeRooms);
             }
             System.out.println("\n");
             roomSelected = Dialog.dialog("Enter the room ID of which you want to book: ");
-            //roomChoice = checkForRoomsDates.getInt(notBookedRoom);
-            //System.out.println(roomSelected + " notBookedRoom");
-
-            // lägga till i booked_dates > Ta auto increamentade id't och lagra som en int
 
             statement = connect.prepareStatement("INSERT INTO booked_dates (room_id, checkin_date, checkout_date) VALUES (?, ?, ?)");
             statement.setInt(1, roomSelected);
@@ -115,9 +108,8 @@ public class Rooms {
             }
 
 
-            //int booked_id = Dialog.dialog("Book id?");
-
             statement = connect.prepareStatement("SELECT booked_id FROM booked_dates WHERE room_id = ? AND checkin_date = ? AND checkout_date = ?");
+
             statement.setInt(1, roomSelected);
             statement.setString(2, checkInDate);
             statement.setString(3, checkOutDate);
@@ -125,7 +117,6 @@ public class Rooms {
             statement.executeQuery();
             booked_id = resultGetID.getInt("booked_id");
 
-            //lägga in i additioanlChoices (room id, booked id, meal, bed
             statement = connect.prepareStatement("INSERT INTO additional_choices (room_id, booked_dates_id, meal_choice, additional_bed) VALUES (?, ?, ?, ?)");
             statement.setInt(1, roomSelected);
             statement.setInt(2, booked_id);
@@ -133,8 +124,11 @@ public class Rooms {
             statement.setString(4, bedSelected);
             statement.executeUpdate();
 
-            statement = connect.prepareStatement("SELECT choice_id FROM additional_choices WHERE room_id = ?");
+            statement = connect.prepareStatement("SELECT choice_ID FROM additional_choices WHERE room_id = ? AND booked_dates_id = ? AND meal_choice = ? AND additional_bed = ?");
             statement.setInt(1, roomSelected);
+            statement.setInt(2, booked_id);
+            statement.setString(3, mealChoice);
+            statement.setString(4, bedSelected);
             ResultSet resultGetChoiceID = statement.executeQuery();
             statement.executeQuery();
             choice_id = resultGetChoiceID.getInt("choice_id");
@@ -142,7 +136,7 @@ public class Rooms {
             boolean menuRunning = true;
             while (menuRunning) {
                 int findGuest = Dialog.dialog("Search for existing customer or register new customer: " +
-                        "\n1. Search for existing customer\n2. Register new customer\n3.Done  ");
+                        "\n1. Search for existing customer\n2. Register new customer\n3.Book a customer using ID");
                 switch (findGuest) {
                     case 1:
                         guestInfo.searchCustomer(connect, statement, resultSet);
@@ -167,35 +161,6 @@ public class Rooms {
                 statement.executeUpdate();
                 System.out.println("Guest " + guestID + " added");
             }
-
-/*
-            statement = connect.prepareStatement("SELECT * FROM availableRooms WHERE HotelID = ?");
-            ResultSet resultAvailableRooms = statement.executeQuery();
-            statement.setInt(1, hotelSelection);
-            statement.executeQuery();
-            while (resultAvailableRooms.next()) {
-                String availableRooms =
-
-                        " - Hotel ID: " + resultAvailableRooms.getString("HotelID") + " \n " +
-                                " - City: " + resultAvailableRooms.getString("City") + "\n "
-                                + " - Hotel name: " + resultAvailableRooms.getString("Hotel name") + " \n "
-                                + " - Rating: " + resultAvailableRooms.getString("Rating") + " \n "
-                                + " - Room number: " + resultAvailableRooms.getString("Room Number") + " \n ";
-
-                System.out.println(availableRooms);
-            }
-
-        } catch (
-                SQLException throwables) {
-            throwables.printStackTrace();
-        }
-
-
-    int room_id = Dialog.dialog("Enter the room ID of which you want to book: ");
-
-
-        try
-    */
         } catch (SQLException throwables) {
             throwables.printStackTrace();
         }
@@ -211,9 +176,10 @@ public class Rooms {
             while (showAllRooms.next()) {
                 String showRooms =
                         "         ---- All rooms ----\n" +
-                        " - Hotel ID : " + showAllRooms.getString("Hotel ID") + " \n " +
+                                " - Hotel ID : " + showAllRooms.getString("Hotel ID") + " \n " +
                                 " - City : " + showAllRooms.getString("City") + "\n "
                                 + " - Hotel name : " + showAllRooms.getString("Hotel name") + " \n "
+                                + " - Rating : " + showAllRooms.getString("Rating") + " \n "
                                 + " - Room number : " + showAllRooms.getString("Room_Number") + " \n "
                                 + " - Room type : " + showAllRooms.getString("Room type") + " \n"
                                 + " - Price per night : " + showAllRooms.getString("Price per night");
